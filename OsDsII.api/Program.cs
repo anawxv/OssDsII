@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 using OsDsII.Data;
+using OsDsII.DTOS;
+using OsDsII.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,18 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseMySql(connectionString, serverVersion);
 });
 // Add services to the container.
+
+var configuration = new MapperConfiguration(configuration =>
+{
+    configuration.CreateMap<ServiceOrder, ServiceOrderDTO>();
+    configuration.CreateMap<ServiceOrder, ServiceOrderInput>().ReverseMap();
+    configuration.CreateMap<Customer, CustomerDTO>();
+}
+);
+configuration.AssertConfigurationIsValid();
+var mapper = configuration.CreateMapper();
+
+builder.Services.AddSingleton(mapper);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

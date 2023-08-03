@@ -11,7 +11,7 @@ using OsDsII.Data;
 namespace OsDsII.api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230802211815_InitialMigration")]
+    [Migration("20230803180906_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />

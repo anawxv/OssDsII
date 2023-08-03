@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OsDsII.Models;
 using OsDsII.Data;
+using OsDsII.DTOS;
+using AutoMapper;
 
 namespace OsDsII.Controllers
 {
@@ -11,30 +13,43 @@ namespace OsDsII.Controllers
     {
         private readonly DataContext _dataContext;
         private readonly ILogger<ServiceOrdersController> _logger;
+        private readonly IMapper _mapper;
 
-        public ServiceOrdersController(DataContext dataContext, ILogger<ServiceOrdersController> logger)
+        public ServiceOrdersController(DataContext dataContext, ILogger<ServiceOrdersController> logger, IMapper mapper)
         {
             _dataContext = dataContext;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateServiceOrderAsync(ServiceOrder serviceOrder)
+        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(ServiceOrderDTO))]
+        public async Task<IActionResult> CreateServiceOrderAsync([FromBody] ServiceOrderInput serviceOrderInput)
         {
-            Customer customerExists = await _dataContext.Customers.FirstOrDefaultAsync(customer => customer.Id == serviceOrder.Customer.Id);
-            if (customerExists is null)
+            ServiceOrder serviceOrder = _mapper.Map<ServiceOrder>(serviceOrderInput);
+            ServiceOrder createdServiceOrder = await CreateAsync(serviceOrder);
+
+            ServiceOrderDTO serviceOrderDto = _mapper.Map<ServiceOrderDTO>(createdServiceOrder);
+
+            return Ok(serviceOrderDto);
+        }
+
+        private async Task<ServiceOrder> CreateAsync(ServiceOrder serviceOrder)
+        {
+            Customer customer = await _dataContext.Customers.FirstOrDefaultAsync(c => c.Id == serviceOrder.Id);
+            if (customer == null)
             {
-                throw new Exception();
+                _logger.LogInformation("Customer not found");
+                throw new Exception("Customer not found");
             }
 
-            serviceOrder.Customer = customerExists;
+            serviceOrder.Customer = customer;
             serviceOrder.Status = StatusServiceOrder.OPEN;
             serviceOrder.OpeningDate = DateTimeOffset.Now;
 
-            await _dataContext.AddAsync(serviceOrder);
+            await _dataContext.ServiceOrders.AddAsync(serviceOrder);
             await _dataContext.SaveChangesAsync();
-
-            return Ok(serviceOrder);
+            return serviceOrder;
         }
 
         [HttpGet]
@@ -83,7 +98,7 @@ namespace OsDsII.Controllers
 
                 if (serviceOrder.CanFinish())
                 {
-                    serviceOrder.finishOS();
+                    serviceOrder.FinishOS();
                     _dataContext.ServiceOrders.Update(serviceOrder);
                     await _dataContext.SaveChangesAsync();
                     return Ok();

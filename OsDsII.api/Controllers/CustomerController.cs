@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 using OsDsII.Models;
 using OsDsII.Data;
+using OsDsII.DTOS;
 
 namespace OsDsII.Controllers
 {
@@ -11,10 +13,31 @@ namespace OsDsII.Controllers
     {
         private readonly DataContext _dataContext;
         private readonly ILogger<CustomersController> _logger;
-        public CustomersController(DataContext dataContext, ILogger<CustomersController> logger)
+        private readonly IMapper _mapper;
+        public CustomersController(DataContext dataContext, ILogger<CustomersController> logger, IMapper mapper)
         {
             _dataContext = dataContext;
             _logger = logger;
+            _mapper = mapper;
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            List<Customer> customers = await _dataContext?.Customers.ToListAsync();
+            List<CustomerDTO> customersDTO = _mapper.Map<List<CustomerDTO>>(customers);
+            return Ok(customersDTO);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByIdAsync(int id)
+        {
+            Customer customer = await _dataContext?.Customers.FirstOrDefaultAsync(c => id == c.Id);
+            if(customer is null)
+            {
+                return NotFound();
+            }
+            CustomerDTO customerDTO = _mapper.Map<CustomerDTO>(customer);
+            return Ok(customerDTO);
         }
 
         [HttpPost]
@@ -51,7 +74,7 @@ namespace OsDsII.Controllers
                     throw new Exception("usuario nao encontrado");
                 }
                 _dataContext.Customers.Remove(customerExists);
-                _dataContext.SaveChangesAsync();
+                await _dataContext.SaveChangesAsync();
                 return Ok();
             }
             catch(Exception ex)

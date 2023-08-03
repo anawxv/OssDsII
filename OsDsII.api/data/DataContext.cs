@@ -8,9 +8,9 @@ namespace OsDsII.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         { }
-        public DbSet<ServiceOrder> ServiceOrders { get; set; }
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Comment> Comments { get; set; }
+        public DbSet<ServiceOrder>? ServiceOrders { get; set; }
+        public DbSet<Customer>? Customers { get; set; }
+        public DbSet<Comment>? Comments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Customer>()
@@ -27,7 +27,7 @@ namespace OsDsII.Data
                 .WithOne(e => e.ServiceOrder)
                 .HasForeignKey(entity => entity.ServiceOrderId)
                 .IsRequired();
-            
+
             modelBuilder.Entity<ServiceOrder>()
                 .Property(serviceOrder => serviceOrder.Status)
                 .HasConversion(new EnumToStringConverter<StatusServiceOrder>());
@@ -36,11 +36,6 @@ namespace OsDsII.Data
             modelBuilder.Entity<ServiceOrder>()
                 .Property(serviceOrder => serviceOrder.FinishDate)
                 .HasDefaultValue(null);
-
-            modelBuilder.Entity<Comment>()
-                .HasOne(e => e.ServiceOrder)
-                .WithMany(e => e.Comments)
-                .IsRequired();
 
         }
     }

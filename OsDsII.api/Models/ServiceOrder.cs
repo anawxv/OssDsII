@@ -35,9 +35,8 @@ namespace OsDsII.Models
         [AllowNull]
         public DateTimeOffset FinishDate { get; set; }
 
-        // many to one
-        public Customer Customer { get; set; } = null!;
-        public List<Comment> Comments = new();
+        public Customer? Customer { get; set; }
+        public List<Comment> Comments { get; } = new();
 
         public bool CanFinish()
         {
@@ -49,7 +48,7 @@ namespace OsDsII.Models
             return !CanFinish();
         }
 
-        public void finishOS()
+        public void FinishOS()
         {
             if(CannotFinish())
             {
