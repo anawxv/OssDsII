@@ -27,9 +27,15 @@ namespace OsDsII.Data
                 .WithOne(e => e.ServiceOrder)
                 .HasForeignKey(entity => entity.ServiceOrderId)
                 .IsRequired();
+            
             modelBuilder.Entity<ServiceOrder>()
-            .Property(serviceOrder => serviceOrder.Status)
-            .HasConversion(new EnumToStringConverter<StatusServiceOrder>());
+                .Property(serviceOrder => serviceOrder.Status)
+                .HasConversion(new EnumToStringConverter<StatusServiceOrder>());
+
+
+            modelBuilder.Entity<ServiceOrder>()
+                .Property(serviceOrder => serviceOrder.FinishDate)
+                .HasDefaultValue(null);
 
             modelBuilder.Entity<Comment>()
                 .HasOne(e => e.ServiceOrder)

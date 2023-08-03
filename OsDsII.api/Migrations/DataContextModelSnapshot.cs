@@ -95,6 +95,14 @@ namespace OsDsII.api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<DateTimeOffset>("FinishDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("finish_date");
+
+                    b.Property<DateTimeOffset>("OpeningDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("opening_date");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)")
                         .HasColumnName("price");
@@ -103,14 +111,6 @@ namespace OsDsII.api.Migrations
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("status");
-
-                    b.Property<DateTimeOffset>("finishDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("finish_date");
-
-                    b.Property<DateTimeOffset>("openingDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("opening_date");
 
                     b.HasKey("Id");
 

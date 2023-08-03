@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace OsDsII.Models
@@ -16,10 +15,12 @@ namespace OsDsII.Models
         public int Id { get; set; }
 
         [NotNull]
+        [Required]
         [Column("description", TypeName = "text")]
         public string Description { get; set; }
 
         [Column("price", TypeName = "decimal(10,2)")]
+        [NotNull]
         public double Price { get; set; }
 
         [Column("status")]
@@ -27,13 +28,36 @@ namespace OsDsII.Models
         public StatusServiceOrder Status { get; set; }
 
         [Column("opening_date")]
-        public DateTimeOffset openingDate { get; set; }
+        [Required]
+        public DateTimeOffset OpeningDate { get; set; }
 
         [Column("finish_date")]
-        public DateTimeOffset finishDate { get; set; }
+        [AllowNull]
+        public DateTimeOffset FinishDate { get; set; }
 
         // many to one
         public Customer Customer { get; set; } = null!;
         public List<Comment> Comments = new();
+
+        public bool CanFinish()
+        {
+            return StatusServiceOrder.OPEN.Equals(Status);
+        }
+
+        public bool CannotFinish()
+        {
+            return !CanFinish();
+        }
+
+        public void finishOS()
+        {
+            if(CannotFinish())
+            {
+                throw new Exception();
+            }
+
+            Status = StatusServiceOrder.FINISHED;
+            FinishDate = DateTimeOffset.Now;
+        }
     }
 }

@@ -18,13 +18,13 @@ namespace OsDsII.Models
         [StringLength(60)]
         [Column("name")]
         [NotNull]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [Required]
         [Column("email")]
         [StringLength(100)]
         [NotNull]
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
 
         [Required]
         [Column("phone")]

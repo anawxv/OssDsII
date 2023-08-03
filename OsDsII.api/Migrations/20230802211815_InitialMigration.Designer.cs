@@ -11,7 +11,7 @@ using OsDsII.Data;
 namespace OsDsII.api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230802130953_InitialMigration")]
+    [Migration("20230802211815_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -98,6 +98,14 @@ namespace OsDsII.api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<DateTimeOffset>("FinishDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("finish_date");
+
+                    b.Property<DateTimeOffset>("OpeningDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("opening_date");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)")
                         .HasColumnName("price");
@@ -106,14 +114,6 @@ namespace OsDsII.api.Migrations
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("status");
-
-                    b.Property<DateTimeOffset>("finishDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("finish_date");
-
-                    b.Property<DateTimeOffset>("openingDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("opening_date");
 
                     b.HasKey("Id");
 
