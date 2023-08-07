@@ -32,7 +32,7 @@ namespace OsDsII.Controllers
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             Customer customer = await _dataContext?.Customers.FirstOrDefaultAsync(c => id == c.Id);
-            if(customer is null)
+            if (customer is null)
             {
                 return NotFound();
             }
@@ -41,7 +41,7 @@ namespace OsDsII.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCustomerAsync(Customer customer)
+        public async Task<IActionResult> CreateCustomerAsync([FromBody] Customer customer)
         {
             try
             {
@@ -58,7 +58,7 @@ namespace OsDsII.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Information, nameof(CustomersController), new {Message = ex.Message});
+                _logger.Log(LogLevel.Information, nameof(CustomersController), new { Message = ex.Message });
                 return BadRequest();
             }
         }
@@ -69,11 +69,27 @@ namespace OsDsII.Controllers
             try
             {
                 Customer customerExists = await _dataContext.Customers.FirstOrDefaultAsync<Customer>(customer => customer.Id == id);
-                if(customerExists != null)
+                if (customerExists != null)
                 {
                     throw new Exception("usuario nao encontrado");
                 }
                 _dataContext.Customers.Remove(customerExists);
+                await _dataContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCustomerAsync(int id, [FromBody] Customer customer)
+        {
+            try {
+                Customer customerExists = await _dataContext.Customers.FirstOrDefaultAsync(c => id == c.Id) ?? throw new Exception("Customer not found");
+                customerExists.Id = id;
+                _dataContext.Customers.Update(customer);
                 await _dataContext.SaveChangesAsync();
                 return Ok();
             }

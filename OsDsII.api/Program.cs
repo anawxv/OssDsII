@@ -17,7 +17,6 @@ builder.Services.AddDbContext<DataContext>(options =>
 var configuration = new MapperConfiguration(configuration =>
 {
     configuration.CreateMap<ServiceOrder, ServiceOrderDTO>();
-    configuration.CreateMap<ServiceOrder, ServiceOrderInput>().ReverseMap();
     configuration.CreateMap<Customer, CustomerDTO>();
 }
 );
