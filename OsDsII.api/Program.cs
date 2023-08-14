@@ -5,6 +5,8 @@ using OsDsII.DTOS;
 using OsDsII.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
@@ -22,6 +24,8 @@ var configuration = new MapperConfiguration(configuration =>
 );
 configuration.AssertConfigurationIsValid();
 var mapper = configuration.CreateMapper();
+
+builder.Services.AddCors();
 
 builder.Services.AddSingleton(mapper);
 
@@ -42,7 +46,6 @@ if (app.Environment.IsDevelopment())
 // app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

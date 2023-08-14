@@ -8,7 +8,7 @@ using OsDsII.DTOS;
 namespace OsDsII.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v1/[controller]")]
     public class CustomersController : ControllerBase
     {
         private readonly DataContext _dataContext;
@@ -69,7 +69,7 @@ namespace OsDsII.Controllers
             try
             {
                 Customer customerExists = await _dataContext.Customers.FirstOrDefaultAsync<Customer>(customer => customer.Id == id);
-                if (customerExists != null)
+                if (customerExists is null)
                 {
                     throw new Exception("usuario nao encontrado");
                 }
@@ -86,16 +86,19 @@ namespace OsDsII.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCustomerAsync(int id, [FromBody] Customer customer)
         {
-            try {
-                Customer customerExists = await _dataContext.Customers.FirstOrDefaultAsync(c => id == c.Id) ?? throw new Exception("Customer not found");
-                customerExists.Id = id;
-                _dataContext.Customers.Update(customer);
-                await _dataContext.SaveChangesAsync();
-                return Ok();
-            }
-            catch(Exception ex)
+            try
             {
-                return BadRequest();
+                Customer customerExists = await _dataContext.Customers.FirstOrDefaultAsync(c => id == c.Id) ?? throw new Exception("Customer not found");
+                customerExists.Email = customer.Email;
+                customerExists.Name = customer.Name;
+                customerExists.Phone = customer.Phone;
+                await _dataContext.SaveChangesAsync();
+                return Ok(customer);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, new { Timestamp = DateTimeOffset.Now, ErrorCode = "ERROR_CODE", Message = "", UriPath = HttpContext.Request.Path });
+                return BadRequest(new { Timestamp = DateTimeOffset.Now, ErrorCode = "ERROR_CODE", ErrorMessage = ex.Message, UriPath = HttpContext.Request.Path, HttpStatusCode = StatusCodes.Status400BadRequest });
             }
         }
     }

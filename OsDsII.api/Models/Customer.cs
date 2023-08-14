@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace OsDsII.Models
 {
@@ -23,6 +24,7 @@ namespace OsDsII.Models
         [Required]
         [Column("email")]
         [StringLength(100)]
+        [BindRequired]
         [NotNull]
         public string Email { get; set; } = null!;
 
@@ -39,6 +41,27 @@ namespace OsDsII.Models
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        public Customer()
+        {}
+
+        public Customer(string name)
+        {
+            Name = name;
+        }
+
+        public Customer(string name, string email)
+        {
+            Name = name;
+            Email = email;
+        }
+
+        public Customer(string name, string email, string phone)
+        {
+            Name = name;
+            Email = email;
+            Phone = phone;
         }
     }
 }

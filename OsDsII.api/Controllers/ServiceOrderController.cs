@@ -8,7 +8,7 @@ using AutoMapper;
 namespace OsDsII.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v1/[controller]")]
     public class ServiceOrdersController : ControllerBase
     {
         private readonly DataContext _dataContext;
