@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using OsDsII.Models;
-using OsDsII.Data;
 using OsDsII.DTOS;
+using OsDsII.Services;
+using OsDsII.Http;
 
 namespace OsDsII.Controllers
 {
@@ -11,33 +11,39 @@ namespace OsDsII.Controllers
     [Route("api/v1/[controller]")]
     public class CustomersController : ControllerBase
     {
-        private readonly DataContext _dataContext;
+        // private readonly DataContext _dataContext;
+        private readonly ICustomersService _customersService;
         private readonly ILogger<CustomersController> _logger;
         private readonly IMapper _mapper;
-        public CustomersController(DataContext dataContext, ILogger<CustomersController> logger, IMapper mapper)
+        public CustomersController(ICustomersService customersService, ILogger<CustomersController> logger, IMapper mapper)
         {
-            _dataContext = dataContext;
+            _customersService = customersService;
             _logger = logger;
             _mapper = mapper;
         }
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HttpResponseApi<IEnumerable<CustomerDTO>>))]
         public async Task<IActionResult> GetAllAsync()
         {
-            List<Customer> customers = await _dataContext?.Customers.ToListAsync();
-            List<CustomerDTO> customersDTO = _mapper.Map<List<CustomerDTO>>(customers);
-            return Ok(customersDTO);
+            IEnumerable<Customer> customers = await _customersService.GetAllAsync();
+            IEnumerable<CustomerDTO> customersDTO = _mapper.Map<List<CustomerDTO>>(customers);
+            return HttpResponseApi<IEnumerable<CustomerDTO>>.Ok(customersDTO);
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HttpResponseApi<IEnumerable<CustomerDTO>>))]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
-            Customer customer = await _dataContext?.Customers.FirstOrDefaultAsync(c => id == c.Id);
-            if (customer is null)
+            try
             {
-                return NotFound();
+                Customer customer = await _customersService.GetByIdAsync(id);
+                CustomerDTO customerDTO = _mapper.Map<CustomerDTO>(customer);
+                return HttpResponseApi<CustomerDTO>.Ok(customerDTO);
             }
-            CustomerDTO customerDTO = _mapper.Map<CustomerDTO>(customer);
-            return Ok(customerDTO);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
@@ -45,21 +51,13 @@ namespace OsDsII.Controllers
         {
             try
             {
-                Customer customerExists = await _dataContext.Customers.FirstOrDefaultAsync(c => c.Email == customer.Email);
-                if (customerExists != null && customerExists.Equals(customer))
-                {
-                    throw new Exception("Customer already exists");
-                }
-
-                await _dataContext.Customers.AddAsync(customer);
-                await _dataContext.SaveChangesAsync();
-
-                return Ok(customer);
+                Customer customerExists = await _customersService.CreateCustomerAsync(customer);
+                return Created("Customer", customer);
             }
             catch (Exception ex)
             {
                 _logger.Log(LogLevel.Information, nameof(CustomersController), new { Message = ex.Message });
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -68,18 +66,12 @@ namespace OsDsII.Controllers
         {
             try
             {
-                Customer customerExists = await _dataContext.Customers.FirstOrDefaultAsync<Customer>(customer => customer.Id == id);
-                if (customerExists is null)
-                {
-                    throw new Exception("usuario nao encontrado");
-                }
-                _dataContext.Customers.Remove(customerExists);
-                await _dataContext.SaveChangesAsync();
-                return Ok();
+                await _customersService.DeleteCustomerAsync(id);
+                return NoContent();
             }
             catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -88,12 +80,8 @@ namespace OsDsII.Controllers
         {
             try
             {
-                Customer customerExists = await _dataContext.Customers.FirstOrDefaultAsync(c => id == c.Id) ?? throw new Exception("Customer not found");
-                customerExists.Email = customer.Email;
-                customerExists.Name = customer.Name;
-                customerExists.Phone = customer.Phone;
-                await _dataContext.SaveChangesAsync();
-                return Ok(customer);
+                await _customersService.UpdateCustomerAsync(id, customer);
+                return NoContent();
             }
             catch (Exception ex)
             {

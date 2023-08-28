@@ -57,7 +57,7 @@ namespace OsDsII.Controllers
         {
             try
             {
-                List<ServiceOrder> serviceOrderList = await _dataContext.ServiceOrders.ToListAsync();
+                List<ServiceOrder> serviceOrderList = await _dataContext.ServiceOrders.Include(c => c.Customer).ToListAsync();
                 return Ok(serviceOrderList);
             }
             catch (Exception ex)
@@ -71,7 +71,9 @@ namespace OsDsII.Controllers
         {
             try
             {
-                ServiceOrder serviceOrder = await _dataContext.ServiceOrders.FirstOrDefaultAsync(serviceOrder => serviceOrder.Id == id);
+                ServiceOrder serviceOrder = await _dataContext.ServiceOrders
+                .Include(c => c.Customer)
+                .FirstOrDefaultAsync(serviceOrder => serviceOrder.Id == id);
                 if (serviceOrder is null)
                 {
                     _logger.LogInformation("NOT FOUND");

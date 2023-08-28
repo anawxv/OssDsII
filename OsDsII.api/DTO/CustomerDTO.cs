@@ -1,6 +1,6 @@
 namespace OsDsII.DTOS
 {
-    public class CustomerDTO
+    public record CustomerDTO
     {
         public int Id { get; set; }
         public string Name { get; set; }

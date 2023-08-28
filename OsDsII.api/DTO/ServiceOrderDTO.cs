@@ -1,7 +1,7 @@
 using OsDsII.Models;
 namespace OsDsII.DTOS
 {
-    public class ServiceOrderDTO
+    public record ServiceOrderDTO
     {
         public int Id { get; set; }
         public string? Description { get; set; }
