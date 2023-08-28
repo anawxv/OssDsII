@@ -3,6 +3,10 @@ using AutoMapper;
 using OsDsII.Data;
 using OsDsII.DTOS;
 using OsDsII.Models;
+using OsDsII.Services;
+using OsDsII.DAL;
+using OsDsII.Repositories;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
@@ -15,6 +19,10 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseMySql(connectionString, serverVersion);
 });
 // Add services to the container.
+
+builder.Services.AddScoped<ICustomersRepository, CustomersRepository>();
+builder.Services.AddScoped<ICustomersService, CustomersService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var configuration = new MapperConfiguration(configuration =>
 {
