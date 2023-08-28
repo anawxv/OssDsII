@@ -24,7 +24,7 @@ namespace OsDsII.Services
         {
             Customer customer = await _customersRepository.GetByIdAsync(id);
 
-            if(customer is null)
+            if (customer is null)
             {
                 throw new NotFoundException("Customer");
             }

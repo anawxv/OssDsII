@@ -14,22 +14,27 @@ namespace OsDsII.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
+        [Comment("Customer ID as a primary key")]
         public int Id;
         [Required]
         [StringLength(60)]
         [Column("name")]
         [NotNull]
+        [Comment("Customer name")]
         public string Name { get; set; } = null!;
 
         [Required]
         [Column("email")]
         [StringLength(100)]
         [BindRequired]
+        [EmailAddress]
         [NotNull]
+        [Comment("Customer email")]
         public string Email { get; set; } = null!;
 
         [Required]
         [Column("phone")]
+        [Comment("Customer phone number")]
         [StringLength(20)]
         [AllowNull]
         public string Phone { get; set; }

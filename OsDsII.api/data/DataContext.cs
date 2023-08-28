@@ -8,7 +8,7 @@ namespace OsDsII.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         { }
-        public DbSet<ServiceOrder>? ServiceOrders { get; set; }
+        public DbSet<ServiceOrder> ServiceOrders { get; set; }
         public DbSet<Customer>? Customers { get; set; }
         public DbSet<Comment>? Comments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
