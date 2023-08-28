@@ -4,6 +4,7 @@ using OsDsII.Models;
 using OsDsII.DTOS;
 using OsDsII.Services;
 using OsDsII.Http;
+using OsDsII.Exceptions;
 
 namespace OsDsII.Controllers
 {
@@ -11,7 +12,6 @@ namespace OsDsII.Controllers
     [Route("api/v1/[controller]")]
     public class CustomersController : ControllerBase
     {
-        // private readonly DataContext _dataContext;
         private readonly ICustomersService _customersService;
         private readonly ILogger<CustomersController> _logger;
         private readonly IMapper _mapper;
@@ -32,6 +32,7 @@ namespace OsDsII.Controllers
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HttpResponseApi<IEnumerable<CustomerDTO>>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(HttpErrorResponse))]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             try
@@ -40,9 +41,9 @@ namespace OsDsII.Controllers
                 CustomerDTO customerDTO = _mapper.Map<CustomerDTO>(customer);
                 return HttpResponseApi<CustomerDTO>.Ok(customerDTO);
             }
-            catch (Exception ex)
+            catch (BaseException ex)
             {
-                return BadRequest(ex.Message);
+                return ex.GetResponse();
             }
         }
 
@@ -54,10 +55,10 @@ namespace OsDsII.Controllers
                 Customer customerExists = await _customersService.CreateCustomerAsync(customer);
                 return Created("Customer", customer);
             }
-            catch (Exception ex)
+            catch (BaseException ex)
             {
                 _logger.Log(LogLevel.Information, nameof(CustomersController), new { Message = ex.Message });
-                return BadRequest(ex.Message);
+                return ex.GetResponse();
             }
         }
 
@@ -69,9 +70,9 @@ namespace OsDsII.Controllers
                 await _customersService.DeleteCustomerAsync(id);
                 return NoContent();
             }
-            catch (Exception ex)
+            catch (BaseException ex)
             {
-                return BadRequest(ex.Message);
+                return ex.GetResponse();
             }
         }
 
@@ -83,10 +84,10 @@ namespace OsDsII.Controllers
                 await _customersService.UpdateCustomerAsync(id, customer);
                 return NoContent();
             }
-            catch (Exception ex)
+            catch (BaseException ex)
             {
                 _logger.LogError(ex.Message, new { Timestamp = DateTimeOffset.Now, ErrorCode = "ERROR_CODE", Message = "", UriPath = HttpContext.Request.Path });
-                return BadRequest(new { Timestamp = DateTimeOffset.Now, ErrorCode = "ERROR_CODE", ErrorMessage = ex.Message, UriPath = HttpContext.Request.Path, HttpStatusCode = StatusCodes.Status400BadRequest });
+                return ex.GetResponse();
             }
         }
     }

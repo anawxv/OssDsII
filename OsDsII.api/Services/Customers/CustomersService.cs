@@ -1,6 +1,7 @@
 using OsDsII.Repositories;
 using OsDsII.DAL;
 using OsDsII.Models;
+using OsDsII.Exceptions;
 
 namespace OsDsII.Services
 {
@@ -21,7 +22,14 @@ namespace OsDsII.Services
 
         public async Task<Customer> GetByIdAsync(int id)
         {
-            return await _customersRepository.GetByIdAsync(id) ?? throw new Exception("Customer not found");
+            Customer customer = await _customersRepository.GetByIdAsync(id);
+
+            if(customer is null)
+            {
+                throw new NotFoundException("Customer");
+            }
+
+            return customer;
         }
 
         public async Task<Customer> CreateCustomerAsync(Customer customer)
@@ -30,7 +38,7 @@ namespace OsDsII.Services
 
             if (customerExists != null && !customerExists.Equals(customer))
             {
-                throw new Exception("Customer already exists");
+                throw new BadRequestException("Customer already exists");
             }
 
             await _customersRepository.AddCustomerAsync(customer);
@@ -44,7 +52,7 @@ namespace OsDsII.Services
 
             if (customerExists is null)
             {
-                throw new Exception("Customer not found");
+                throw new NotFoundException("Customer");
             }
 
             await _customersRepository?.DeleteCustomer(customerExists);
@@ -57,7 +65,7 @@ namespace OsDsII.Services
             Customer customerExists = await GetByIdAsync(id);
             if (customerExists is null)
             {
-                throw new Exception("Customer not found");
+                throw new NotFoundException("Customer");
             }
             customerExists.Email = customer.Email;
             customerExists.Name = customer.Name;
