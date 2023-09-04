@@ -1,7 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
+using OsDsII.DTOS.Builders;
+using OsDsII.DTOS;
 
 namespace OsDsII.Models
 {
@@ -17,6 +20,7 @@ namespace OsDsII.Models
         [NotNull]
         [Required]
         [Column("description", TypeName = "text")]
+        [StringLength(200)]
         public string Description { get; set; }
 
         [Column("price", TypeName = "decimal(10,2)")]
@@ -25,14 +29,17 @@ namespace OsDsII.Models
 
         [Column("status")]
         [NotMapped]
+        [DefaultValue(0)]
         public StatusServiceOrder Status { get; set; }
 
         [Column("opening_date")]
         [Required]
-        public DateTimeOffset OpeningDate { get; set; }
+        [Timestamp]
+        public DateTimeOffset OpeningDate { get; set; } = DateTimeOffset.Now;
 
         [Column("finish_date")]
         [AllowNull]
+        [Timestamp]
         public DateTimeOffset FinishDate { get; set; }
 
         public Customer? Customer { get; set; }
@@ -50,13 +57,39 @@ namespace OsDsII.Models
 
         public void FinishOS()
         {
-            if(CannotFinish())
+            if (CannotFinish())
             {
                 throw new Exception();
             }
 
             Status = StatusServiceOrder.FINISHED;
             FinishDate = DateTimeOffset.Now;
+        }
+
+        public ServiceOrderDTO ToServiceOrder()
+        {
+            ServiceOrderDTO serviceOrderDTO = new ServiceOrderDTOBuilder()
+                .WithId(Id)
+                .WithDescription(Description)
+                .WithPrice(Price)
+                .WithStatus(Status)
+                .WithOpeningDate(OpeningDate)
+                .WithFinishDate()
+                .WithCustomer(new CustomerDTO())
+                .Build();
+            return serviceOrderDTO;
+        }
+
+        public static ServiceOrder FromServiceOrderInput(ServiceOrderInput input, Customer customer)
+        {
+            return new ServiceOrder
+            {
+                Description = input.Description,
+                Price = input.Price,
+                Customer = customer,
+                Status = StatusServiceOrder.OPEN,
+                OpeningDate = DateTimeOffset.Now
+            };
         }
     }
 }

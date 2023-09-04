@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using OsDsII.Models;
 using OsDsII.Data;
 using OsDsII.DTOS;
-using AutoMapper;
-
 namespace OsDsII.Controllers
 {
     [ApiController]
@@ -13,42 +11,33 @@ namespace OsDsII.Controllers
     {
         private readonly DataContext _dataContext;
         private readonly ILogger<ServiceOrdersController> _logger;
-        private readonly IMapper _mapper;
 
-        public ServiceOrdersController(DataContext dataContext, ILogger<ServiceOrdersController> logger, IMapper mapper)
+        public ServiceOrdersController(DataContext dataContext, ILogger<ServiceOrdersController> logger)
         {
             _dataContext = dataContext;
             _logger = logger;
-            _mapper = mapper;
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(ServiceOrderDTO))]
-        public async Task<IActionResult> CreateServiceOrderAsync([FromBody] ServiceOrderInput serviceOrderInput)
+        public async Task<IActionResult> CreateServiceOrderAsync([FromBody] ServiceOrderInput ordemServicoInput)
         {
-            ServiceOrder serviceOrder = _mapper.Map<ServiceOrder>(serviceOrderInput);
-            ServiceOrder createdServiceOrder = await CreateAsync(serviceOrder);
-
-            ServiceOrderDTO serviceOrderDto = _mapper.Map<ServiceOrderDTO>(createdServiceOrder);
-
-            return Ok(serviceOrderDto);
+            ServiceOrder createdServiceOrder = await Save(ordemServicoInput);
+            ServiceOrderDTO serviceOrderDto = createdServiceOrder.ToServiceOrder();
+            return Created("ServiceOrder", serviceOrderDto);
         }
 
-        private async Task<ServiceOrder> CreateAsync(ServiceOrder serviceOrder)
+        private async Task<ServiceOrder> Save(ServiceOrderInput serviceOrderInput)
         {
-            Customer customer = await _dataContext.Customers.FirstOrDefaultAsync(c => c.Id == serviceOrder.Id);
-            if (customer == null)
-            {
-                _logger.LogInformation("Customer not found");
-                throw new Exception("Customer not found");
-            }
+            // Get customer from database
+            Customer customer = await _dataContext.Customers.FirstOrDefaultAsync(c => c.Id == serviceOrderInput.Id);
 
-            serviceOrder.Customer = customer;
-            serviceOrder.Status = StatusServiceOrder.OPEN;
-            serviceOrder.OpeningDate = DateTimeOffset.Now;
+            // Create a ServiceOrder object from the ServiceOrderInput
+            ServiceOrder serviceOrder = ServiceOrder.FromServiceOrderInput(serviceOrderInput, customer);
 
-            await _dataContext.ServiceOrders.AddAsync(serviceOrder);
+            // Add to database
+            var createdServiceOrder = _dataContext.ServiceOrders.Add(serviceOrder);
             await _dataContext.SaveChangesAsync();
+
             return serviceOrder;
         }
 

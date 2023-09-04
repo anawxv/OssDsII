@@ -2,7 +2,7 @@ namespace OsDsII.Models
 {
     public class ServiceOrderInput : BaseEntity
     {
-        public string description { get; set; }
-        public double price { get; set; }
+        public string Description { get; set; }
+        public double Price { get; set; }
     }
 }

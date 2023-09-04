@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using OsDsII.DTOS.Builders;
+using OsDsII.DTOS;
 
 namespace OsDsII.Models
 {
@@ -67,6 +69,17 @@ namespace OsDsII.Models
             Name = name;
             Email = email;
             Phone = phone;
+        }
+
+        public CustomerDTO ToCustomer()
+        {
+            CustomerDTO customerDto = new CustomerDtoBuilder()
+                    .WithId(Id)
+                    .WithName(Name)
+                    .WithEmail(Email)
+                    .WithPhone(Phone)
+                    .Build();
+            return customerDto;
         }
     }
 }

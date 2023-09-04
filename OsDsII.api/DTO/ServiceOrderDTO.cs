@@ -10,6 +10,6 @@ namespace OsDsII.DTOS
         public double Price { get; set; }
         public StatusServiceOrder Status { get; set; }
         public DateTimeOffset OpeningDate { get; set; }
-        public DateTimeOffset FinishDate { get; set;}
+        public DateTimeOffset? FinishDate { get; set;}
     }
 }

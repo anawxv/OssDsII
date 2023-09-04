@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
 using OsDsII.Models;
 using OsDsII.DTOS;
 using OsDsII.Services;
@@ -14,32 +13,30 @@ namespace OsDsII.Controllers
     {
         private readonly ICustomersService _customersService;
         private readonly ILogger<CustomersController> _logger;
-        private readonly IMapper _mapper;
-        public CustomersController(ICustomersService customersService, ILogger<CustomersController> logger, IMapper mapper)
+        public CustomersController(ICustomersService customersService, ILogger<CustomersController> logger)
         {
             _customersService = customersService;
             _logger = logger;
-            _mapper = mapper;
         }
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HttpResponseApi<IEnumerable<CustomerDTO>>))]
         public async Task<IActionResult> GetAllAsync()
         {
             IEnumerable<Customer> customers = await _customersService.GetAllAsync();
-            IEnumerable<CustomerDTO> customersDTO = _mapper.Map<List<CustomerDTO>>(customers);
+            IEnumerable<CustomerDTO> customersDTO = customers.Select(customer => customer.ToCustomer());
             return HttpResponseApi<IEnumerable<CustomerDTO>>.Ok(customersDTO);
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HttpResponseApi<IEnumerable<CustomerDTO>>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HttpResponseApi<CustomerDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(HttpErrorResponse))]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             try
             {
                 Customer customer = await _customersService.GetByIdAsync(id);
-                CustomerDTO customerDTO = _mapper.Map<CustomerDTO>(customer);
-                return HttpResponseApi<CustomerDTO>.Ok(customerDTO);
+                CustomerDTO customerDto = customer.ToCustomer();
+                return HttpResponseApi<CustomerDTO>.Ok(customerDto);
             }
             catch (BaseException ex)
             {
@@ -48,12 +45,14 @@ namespace OsDsII.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(HttpResponseApi<CustomerDTO>))]
         public async Task<IActionResult> CreateCustomerAsync([FromBody] Customer customer)
         {
             try
             {
                 Customer customerExists = await _customersService.CreateCustomerAsync(customer);
-                return Created("Customer", customer);
+                CustomerDTO customerDto = customerExists.ToCustomer();
+                return HttpResponseApi<CustomerDTO>.Created(customerDto);
             }
             catch (BaseException ex)
             {

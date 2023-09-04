@@ -18,13 +18,16 @@ namespace OsDsII.Models
         public long Id { get; set; }
 
         [Column("description", TypeName = "text")]
+        [StringLength(500)]
         [NotNull]
         public string Description { get; set; } = null!;
 
+        [ForeignKey("service_order_id")]
         public int ServiceOrderId { get; set; }
 
         [NotNull]
         [Column("send_date")]
+        [Timestamp]
         public DateTimeOffset SendDate { get; set; }
 
         public ServiceOrder ServiceOrder { get; set; } = null!;
