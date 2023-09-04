@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
 using OsDsII.Data;
 using OsDsII.DTOS;
 using OsDsII.Models;
@@ -24,18 +23,9 @@ builder.Services.AddScoped<ICustomersRepository, CustomersRepository>();
 builder.Services.AddScoped<ICustomersService, CustomersService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-var configuration = new MapperConfiguration(configuration =>
-{
-    configuration.CreateMap<ServiceOrder, ServiceOrderDTO>();
-    configuration.CreateMap<Customer, CustomerDTO>();
-}
-);
-configuration.AssertConfigurationIsValid();
-var mapper = configuration.CreateMapper();
 
 builder.Services.AddCors();
 
-builder.Services.AddSingleton(mapper);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

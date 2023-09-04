@@ -37,6 +37,10 @@ namespace OsDsII.Data
                 .Property(serviceOrder => serviceOrder.FinishDate)
                 .HasDefaultValue(null);
 
+            modelBuilder.Entity<ServiceOrder>()
+                .Property(serviceOrder => serviceOrder.OpeningDate)
+                .HasDefaultValue(DateTimeOffset.Now);
+
         }
     }
 }
