@@ -12,11 +12,9 @@ namespace OsDsII.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly ICustomersService _customersService;
-        private readonly ILogger<CustomersController> _logger;
-        public CustomersController(ICustomersService customersService, ILogger<CustomersController> logger)
+        public CustomersController(ICustomersService customersService)
         {
             _customersService = customersService;
-            _logger = logger;
         }
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HttpResponseApi<IEnumerable<CustomerDTO>>))]
@@ -56,7 +54,7 @@ namespace OsDsII.Controllers
             }
             catch (BaseException ex)
             {
-                _logger.Log(LogLevel.Information, nameof(CustomersController), new { Message = ex.Message });
+                // _logger.Log(LogLevel.Information, nameof(CustomersController), new { Message = ex.Message });
                 return ex.GetResponse();
             }
         }
@@ -85,7 +83,7 @@ namespace OsDsII.Controllers
             }
             catch (BaseException ex)
             {
-                _logger.LogError(ex.Message, new { Timestamp = DateTimeOffset.Now, ErrorCode = "ERROR_CODE", Message = "", UriPath = HttpContext.Request.Path });
+                // _logger.LogError(ex.Message, new { Timestamp = DateTimeOffset.Now, ErrorCode = "ERROR_CODE", Message = "", UriPath = HttpContext.Request.Path });
                 return ex.GetResponse();
             }
         }

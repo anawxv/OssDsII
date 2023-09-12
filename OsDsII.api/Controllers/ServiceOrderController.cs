@@ -76,7 +76,7 @@ namespace OsDsII.Controllers
             }
         }
 
-        [HttpPut("{id}/status")]
+        [HttpPut("{id}/status/finish")]
         public async Task<IActionResult> FinishServiceOrderAsync(int id)
         {
             try

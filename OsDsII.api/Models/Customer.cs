@@ -18,6 +18,7 @@ namespace OsDsII.Models
         [Column("id")]
         [Comment("Customer ID as a primary key")]
         public int Id;
+
         [Required]
         [StringLength(60)]
         [Column("name")]
@@ -51,7 +52,7 @@ namespace OsDsII.Models
         }
 
         public Customer()
-        {}
+        { }
 
         public Customer(string name)
         {
@@ -66,6 +67,14 @@ namespace OsDsII.Models
 
         public Customer(string name, string email, string phone)
         {
+            Name = name;
+            Email = email;
+            Phone = phone;
+        }
+
+        public Customer(int id, string name, string email, string phone)
+        {
+            Id = id;
             Name = name;
             Email = email;
             Phone = phone;
