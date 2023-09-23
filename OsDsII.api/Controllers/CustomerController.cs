@@ -12,6 +12,7 @@ namespace OsDsII.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly ICustomersService _customersService;
+
         public CustomersController(ICustomersService customersService)
         {
             _customersService = customersService;
@@ -24,6 +25,7 @@ namespace OsDsII.Controllers
             IEnumerable<CustomerDTO> customersDTO = customers.Select(customer => customer.ToCustomer());
             return HttpResponseApi<IEnumerable<CustomerDTO>>.Ok(customersDTO);
         }
+
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HttpResponseApi<CustomerDTO>))]
