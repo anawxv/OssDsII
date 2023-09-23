@@ -83,7 +83,6 @@ namespace OsDsII.Models
         public CustomerDTO ToCustomer()
         {
             CustomerDTO customerDto = new CustomerDtoBuilder()
-                    .WithId(Id)
                     .WithName(Name)
                     .WithEmail(Email)
                     .WithPhone(Phone)
